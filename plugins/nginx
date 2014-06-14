@@ -1,0 +1,55 @@
+install: $(DESTDIR)/usr/bin/nginx
+
+help:
+	@echo "NGINX_VER=x.y.z PCRE_VER=x.y.z DESTDIR=path TMP=path $(MAKE) nginx"
+
+NGINX=nginx-$(NGINX_VER)
+PCRE=pcre-$(PCRE_VER)
+NGINX_HEADERS_MORE_VER=22
+
+### nginx
+
+$(TMP)/nginx-headers-more/src:
+	mkdir -p $(TMP)/nginx-headers-more
+	curl -L https://github.com/agentzh/headers-more-nginx-module/archive/v0.${NGINX_HEADERS_MORE_VER}.tar.gz | tar xzv -C $(TMP)/nginx-headers-more --strip-components 1
+	touch $@
+
+$(TMP)/$(PCRE):
+	curl -L http://downloads.sourceforge.net/project/pcre/pcre/$(PCRE_VER)/$(PCRE).tar.bz2 | tar -C $(TMP) -jvx
+	touch $@
+
+$(TMP)/$(NGINX)/configure:
+	curl http://nginx.org/download/$(NGINX).tar.gz | tar xzv -C $(TMP)
+	touch $@
+
+$(TMP)/$(NGINX)/objs/Makefile: $(TMP)/$(NGINX)/configure $(TMP)/$(PCRE) $(TMP)/nginx-headers-more/src
+	cd $(TMP)/$(NGINX) && \
+		./configure \
+			--with-pcre=$(TMP)/$(PCRE) \
+			--http-client-body-temp-path=/tmp/nginx_client_body_temp \
+			--http-proxy-temp-path=/tmp/temp_proxy \
+			--error-log-path=/dev/stderr \
+			--add-module=$(TMP)/nginx-headers-more \
+			--without-http_charset_module \
+			--without-http_ssi_module \
+			--without-http_userid_module \
+			--without-http_autoindex_module \
+			--without-http_geo_module \
+			--without-http_map_module \
+			--without-http_split_clients_module \
+			--without-http_referer_module \
+			--without-http_fastcgi_module \
+			--without-http_uwsgi_module \
+			--without-http_scgi_module \
+			--without-http_memcached_module \
+			--without-http_limit_conn_module \
+			--without-http_limit_req_module \
+			--without-http_empty_gif_module \
+			--without-http_browser_module \
+			--without-http_upstream_ip_hash_module
+
+$(DESTDIR)/usr/bin/nginx: $(TMP)/$(NGINX)/objs/Makefile
+	make -j4 -C $(TMP)/$(NGINX)
+	touch $< # the Makefile is older than pcre directory as pcre is built during build time
+	install $(TMP)/$(NGINX)/objs/nginx $(DESTDIR)/usr/bin/nginx
+	touch $@
