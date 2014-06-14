@@ -9,8 +9,13 @@ PLUGINS=$(shell find plugins -type f -printf '%f\n')
 .PHONY: help default $(PLUGINS)
 
 help:
-	@echo "Usage:"
-	@echo "NODE_VER=x.y.z DESTDIR=path TMP=path $(MAKE) node"
+	@echo "Available plugins"
+	@for plugin in $(PLUGINS) ; do \
+		echo ; \
+		echo $$plugin ; \
+		echo '---------------' ; \
+		$(MAKE) --no-print-directory -f ./plugins/$$plugin help ; \
+	done
 
 $(PLUGINS):
-	$(MAKE) -f ./plugins/$@ install
+	@$(MAKE) --no-print-directory -f ./plugins/$@ install

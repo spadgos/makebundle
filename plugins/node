@@ -1,18 +1,11 @@
 ### Node js
 
-ifndef DESTDIR
-$(error DESTDIR is not set)
-endif
-ifndef TMP
-$(error TMP is not set)
-endif
-ifndef NODE_VER
-$(error NODE_VER is not set)
-endif
-
 NODEJS=nodejs-$(NODE_VER)
 
 install: $(DESTDIR)/usr/bin/node
+
+help:
+	@echo "NODE_VER=x.y.z DESTDIR=path TMP=path $(MAKE) node"
 
 $(TMP)/$(NODEJS)/configure:
 	mkdir -p $(TMP)/$(NODEJS)
@@ -26,3 +19,5 @@ $(TMP)/$(NODEJS)/config.gypi: $(TMP)/$(NODEJS)/configure
 $(DESTDIR)/usr/bin/node: $(TMP)/$(NODEJS)/config.gypi
 	PORTABLE=1 $(MAKE) -j4 -C $(TMP)/$(NODEJS) DESTDIR=$(DESTDIR) install
 	touch $@
+
+.PHONY: help install
