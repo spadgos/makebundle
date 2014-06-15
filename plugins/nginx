@@ -1,4 +1,6 @@
-install: $(DESTDIR)/usr/bin/nginx
+include guard
+
+install: guard-NGINX_VER guard-PCRE_VER guard-DESTDIR guard-TMP $(DESTDIR)/usr/bin/nginx
 
 help:
 	@echo "NGINX_VER=x.y.z PCRE_VER=x.y.z DESTDIR=path TMP=path $(MAKE) nginx"

@@ -1,8 +1,9 @@
 ### Node js
+include guard
 
 NODEJS=nodejs-$(NODE_VER)
 
-install: $(DESTDIR)/usr/bin/node
+install: guard-NODE_VER guard-DESTDIR guard-TMP $(DESTDIR)/usr/bin/node
 
 help:
 	@echo "NODE_VER=x.y.z DESTDIR=path TMP=path $(MAKE) node"

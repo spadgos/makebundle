@@ -1,0 +1,12 @@
+## Ensure that an environment variable is set by calling guard-ENV_VAR_NAME
+#
+## Usage:
+# include guard
+#
+# install: guard-FOO
+
+guard-%:
+	@ if [ x${${*}} = "x" ]; then \
+		echo "Environment variable $* not set"; \
+		exit 1; \
+	fi
